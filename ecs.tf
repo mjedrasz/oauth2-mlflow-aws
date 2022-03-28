@@ -32,22 +32,6 @@ data "aws_secretsmanager_secret_version" "db_password" {
   secret_id = data.aws_secretsmanager_secret.db_password.id
 }
 
-data "aws_secretsmanager_secret" "s3_access_key_id" {
-  name = "mlflow/access-key-id"
-}
-
-data "aws_secretsmanager_secret_version" "s3_access_key_id" {
-  secret_id = data.aws_secretsmanager_secret.s3_access_key_id.id
-}
-
-data "aws_secretsmanager_secret" "s3_secret_access_key" {
-  name = "mlflow/secret-access-key"
-}
-
-data "aws_secretsmanager_secret_version" "s3_secret_access_key" {
-  secret_id = data.aws_secretsmanager_secret.s3_secret_access_key.id
-}
-
 resource "aws_iam_role" "ecs_task" {
   name = "${var.unique_name}-ecs-task"
   tags = local.tags
@@ -86,7 +70,6 @@ resource "aws_iam_role" "ecs_execution" {
 
 }
 
-
 resource "aws_iam_role_policy" "secrets" {
   name = "${var.unique_name}-read-secret"
   role = aws_iam_role.ecs_execution.id
@@ -106,10 +89,29 @@ resource "aws_iam_role_policy" "secrets" {
           data.aws_secretsmanager_secret_version.db_password.arn,
           data.aws_secretsmanager_secret.oauth2_client_id.arn,
           data.aws_secretsmanager_secret.oauth2_client_secret.arn,
-          data.aws_secretsmanager_secret.oauth2_cookie_secret.arn,
-          data.aws_secretsmanager_secret.s3_access_key_id.arn,
-          data.aws_secretsmanager_secret.s3_secret_access_key.arn
+          data.aws_secretsmanager_secret.oauth2_cookie_secret.arn
         ]
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "s3" {
+  name = "${var.unique_name}-s3"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = ["arn:aws:s3:::${aws_s3_bucket.artifacts.bucket}"]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:*Object"]
+        Resource = ["arn:aws:s3:::${aws_s3_bucket.artifacts.bucket}/*"]
       },
     ]
   })
@@ -190,14 +192,6 @@ resource "aws_ecs_task_definition" "mlflow" {
         {
           name      = "DB_PASSWORD"
           valueFrom = data.aws_secretsmanager_secret.db_password.arn
-        },
-        {
-          name      = "AWS_ACCESS_KEY_ID"
-          valueFrom = data.aws_secretsmanager_secret.s3_access_key_id.arn
-        },
-        {
-          name      = "AWS_SECRET_ACCESS_KEY"
-          valueFrom = data.aws_secretsmanager_secret.s3_secret_access_key.arn
         }
       ]
       logConfiguration = {

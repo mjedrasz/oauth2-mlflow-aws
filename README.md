@@ -54,22 +54,39 @@ A relevant Terraform container definition for the MLFlow service is shown below.
     {
       name      = "DB_PASSWORD"
       valueFrom = data.aws_secretsmanager_secret.db_password.arn
-    },
-    {
-      name      = "AWS_ACCESS_KEY_ID"
-      valueFrom = data.aws_secretsmanager_secret.s3_access_key_id.arn
-    },
-    {
-      name      = "AWS_SECRET_ACCESS_KEY"
-      valueFrom = data.aws_secretsmanager_secret.s3_secret_access_key.arn
     }
   ]
 }
 ```
 
-The container setup is simple - we just start the MLFlow server with some options. Sensitive data, i.e., database password and credentials to S3 are fetched from Secret Manager (a cheaper option, but less robust, would be to use Systems Manager Parameter Store). However, passing the backend store uri is at the moment a little bit convoluted. AWS ECS doesn't allow interpolating secrets in CLI arguments at runtime hence we need a shell. Preferably, MLFlow server should introduce an option to specify this value via an environment variable (there is an issue for that https://github.com/mlflow/mlflow/issues/3122).
+The container setup is simple - we just start the MLFlow server with some options. Sensitive data, i.e., database password is fetched from Secret Manager (a cheaper option, but less robust, would be to use Systems Manager Parameter Store). ECS task is also given a role to access S3 where MLFlow stores  artefacts.
 
-Similarly, `oauht2-proxy` container definition is as follows.
+```json
+resource "aws_iam_role_policy" "s3" {
+  name = "${var.unique_name}-s3"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = ["arn:aws:s3:::${aws_s3_bucket.artifacts.bucket}"]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:*Object"]
+        Resource = ["arn:aws:s3:::${aws_s3_bucket.artifacts.bucket}/*"]
+      },
+    ]
+  })
+}
+```
+
+However, passing the backend store uri is at the moment a little bit convoluted. AWS ECS doesn't allow interpolating secrets in CLI arguments at runtime hence we need a shell. Preferably, MLFlow server should introduce an option to specify this value via an environment variable (there is an issue for that https://github.com/mlflow/mlflow/issues/3122).
+
+Similarly, `oauth2-proxy` container definition is as follows.
 
 ```json
 {
@@ -189,16 +206,6 @@ aws secretsmanager create-secret \
    --name mlflow/oauth2-client-secret \
    --description "OAuth2 client secret" \
    --secret-string "<oauth2_client_secret_here>"
- 
-aws secretsmanager create-secret \
-   --name mlflow/access-key-id \
-   --description "Artefact store access key id" \
-   --secret-string "<s3_access_key_id_here>"
- 
-aws secretsmanager create-secret \
-   --name mlflow/secret-access-key \
-   --description "Artefact store secret access key" \
-   --secret-string "<s3_secret_access_key_here>"
 ```
 
 ### Deploy MLFlow

@@ -19,7 +19,7 @@ The main MLFlow infrastructure components are:
 * AWS S3 used as the artefact store where MLFlow stores artefacts, e.g. models, data files.
 * [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/) protects MLFlow endpoints using OAuth2 compatible providers, e.g. Google.
 
-The other AWS components provide runtime/compute environment (Elastic Container Service, ECS), routing (Application Load Balancer, ALB, and Route 53 as a DNS service) and security (Secrets Manager and Virtual Private Cloud, VPC). Please see the [Elasict Container Service](docs/elastic_container_service.md) for details.
+The other AWS components provide runtime/compute environment (Elastic Container Service, ECS), routing (Application Load Balancer, ALB, and Route 53 as a DNS service) and security (Secrets Manager and Virtual Private Cloud, VPC). Please see the [Elasict Container Service](elastic_container_service.md) for details.
 
 ## Deployment
 

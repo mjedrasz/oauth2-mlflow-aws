@@ -101,7 +101,7 @@ aws secretsmanager create-secret \
    --secret-string "<cookie_secret_here>"
 ```
 
-You can choose any password for the `db_password_here` but make sure that it is strong and secure. Use the `Client ID` and `Client Secret` from the [Setting up Oauth2] section to populate these secrets. The cookie secret can be created using the following python script:
+You can choose any password for the `db_password_here` but make sure that it is strong and secure. Use the `Client ID` and `Client Secret` from the [Setting up Oauth2](oauth2_setup.md) section to populate these secrets. The cookie secret can be created using the following python script:
 ```python
 import secrets
 random_bytes = secrets.token_bytes(16)

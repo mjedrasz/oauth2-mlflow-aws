@@ -124,6 +124,10 @@ terraform apply
 
 Setting up the AWS infrastructure may take a few minutes. Once it’s completed you can navigate to the MLFlow UI (the URL will be printed in the `mlflow_uri` output variable). Authorise using your Google account.
 
+## Restricting Access to Specific Email Domains
+
+You might be interested in your MLFlow service to be only accessible to users from a specific domain. You can achieve this by replacing the `--email-domain` wildcard `"*"` string with your organization email domain in the relevant [oauth2-proxy](ecs.tf) container.
+
 ## Programmatic access
 
 Many MLFlow use cases involve accessing the MLFlow Tracking Server API programmatically, e.g. logging parameters or metrics in your kedro pipelines. In such scenarios you need to pass a Bearer token in the HTTP `Authorization` header. Obtaining such a token varies between providers. For Google, for instance, you could get the token running the following command:

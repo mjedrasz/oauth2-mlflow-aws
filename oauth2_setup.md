@@ -1,4 +1,6 @@
 # Step by Step Guide for Oauth2 Setup
+The official Google Oauth2 documentation can be found [here](https://support.google.com/cloud/answer/6158849?hl=en). The following are the major steps required to setup Oauth2.
+
 Navigate to the [Google Cloud Console](https://console.cloud.google.com/) and select the project to use for setting up Oauth2. If you do not have a project, you should create one. Then, using the ☰ button, navigate to **API & Services** → **Credentials** as seen in the following Figure:
 
 ![API & Services → Credentials](images/credentials.oauth2.png)

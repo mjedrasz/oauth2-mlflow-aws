@@ -27,7 +27,7 @@ A complete Terraform stack is available for an easy and automatic deployment of 
 
 ### Setting up OAuth 2.0 client
 
-To secure our MLFlow server we need to integrate with an OAuth2 provider. `oauth2-proxy` supports major OAuth2 providers and you can configure whichever you like. (Keep in mind that not all supported providers allow getting an authorization token which is needed for a programmatic access). In this setup Google provider is used. Follow [Setting up OAuth 2.0](https://support.google.com/cloud/answer/6158849?hl=en) instructions to create an OAuth 2.0 client. In the process
+To secure our MLFlow server we need to integrate with an OAuth2 provider. `oauth2-proxy` supports major OAuth2 providers and you can configure whichever you like. (Keep in mind that not all supported providers allow getting an authorization token which is needed for a programmatic access). In this setup Google provider is used. Follow [Setting up OAuth 2.0](oauth2_setup.md) instructions to create an OAuth 2.0 client. In the process
 
 * Note the generated `Client Id` and `Client Secret` which we will need later.
 * Specify `https://<your_dns_name_here>/oauth2/callback` in the `Authorized redirect URIs` field.
